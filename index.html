@@ -1,18 +1,28 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
-
 <head>
-<script>
-function myFunction() {
-  document.getElementById("demo").innerHTML = "Paragraph changed.";
-}
-</script>
+	<meta charset="utf-8" />
+	<title>CapsFrame</title>
 </head>
 <body>
 
-<h1>A Web Page</h1>
-<p id="demo">A Paragraph</p>
-<button type="button" onclick="myFunction()">Try it</button>
+	<h1>Caps Frame</h1>
+
+	<p id="demo">A Paragraph</p>
+
+	<img src="https://pbs.twimg.com/profile_images/794708906094317572/Bb8lpZ2t_400x400.jpg" id="inputPicture" crossOrigin="anonymous" alt="input picture">
+	<canvas id="renderCanvas" width="300" height="150" style="border:1px solid #d3d3d3;">
+	Your browser does not support the HTML5 canvas tag.</canvas>
+
+	<br>
+	k: <input id="nbColorsField" type="number" name="nbColors" value="10"><br>
+	max iterations: <input id="maxIterationsField" type="number" name="max iterations" value="20"><br>
+	square size: <input id="squareSizeField" type="number" name="square size" value="10"><br>
+	<input id="colorField" type="color" name="background color" value="#ffffff"><br>
+	<input id="quincux" type="checkbox" name="quincux" checked><br>
+	<button type="button" onclick="myFunction()">Try it</button>
+
+	<script src="capsFrame.js"></script>
 
 </body>
 </html>
