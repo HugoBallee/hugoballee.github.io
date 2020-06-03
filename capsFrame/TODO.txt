@@ -1,0 +1,7 @@
+* Metalic shader
+* 3D rendering
+* Staggered
+* Pick picture from file
+* Pick picture from Google search image
+* Pick picture from URL
+* Pick background color
