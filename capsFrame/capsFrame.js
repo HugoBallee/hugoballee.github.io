@@ -8,10 +8,11 @@ function hndlr(response) {
     }
 }
 
-function myFunction() {
+function generateCanvas() {
     var img = document.getElementById("inputPicture");
     var pixels = getPictureData(img);
-    var squareSize = Number(document.getElementById("squareSizeField").value);
+    var definition = Math.max(Number(document.getElementById("definition").value), 1);
+    var capDiameter = Math.max(Math.min(img.width, img.height), 1) / definition
     var nbColors = document.getElementById("nbColorsField").value;
     var maxIterations = document.getElementById("maxIterationsField").value;
     var backgroundColor = document.getElementById("colorField").value;
@@ -19,10 +20,12 @@ function myFunction() {
     var quincux = document.getElementById("quincux").checked;
     
     var prunedColors = pruneColors(pixels, nbColors, maxIterations);
-    var capsed = capsPicture(prunedColors, squareSize, backgroundColor, quincux);
-
-    setRenderCanvas("renderCanvas", capsed.colors);
-
+    var draw = SVG('#svg_out')
+    draw.size(img.width, img.height)
+    background = draw.rect(img.width, img.height)
+    background.fill(backgroundColor)
+    var capsed = capsPicture(draw, prunedColors, capDiameter, backgroundColor, quincux);
+    
     document.getElementById("demo").innerHTML = capsed.nbCaps + " caps";
 }
 
@@ -101,22 +104,22 @@ function kMeanResultToColors(kMeanResults) {
     return colors;
 }
 
-function capsPicture(colors, squareSize, backgroundColor, quincunx) {
+function capsPicture(draw, colors, capDiameter, backgroundColor, quincunx) {
     var oldWidth = colors.length;
     var oldHeight = colors[0].length;
 
     var newColors = [];
 
     var newWidth, newHeight, offsetX, offsetY, mainColor, center, point;
-    var nbSquares = 0;
-    var hSquareSize = squareSize * 0.5;
+    var nbCaps = 0;
+    var capRadius = capDiameter * 0.5;
 
     if (quincunx) {
         
     } else {
-        newWidth = oldWidth - (oldWidth % squareSize);
-        newHeight = oldHeight - (oldHeight % squareSize);
-        nbSquares = Math.floor(oldWidth / squareSize) * Math.floor(oldHeight / squareSize);
+        newWidth = oldWidth - (oldWidth % capDiameter);
+        newHeight = oldHeight - (oldHeight % capDiameter);
+        nbCaps = Math.floor(oldWidth / capDiameter) * Math.floor(oldHeight / capDiameter);
     
         offsetX = Math.floor((oldWidth - newWidth) / 2);
         offsetY = Math.floor((oldHeight - newHeight) / 2);
@@ -124,14 +127,17 @@ function capsPicture(colors, squareSize, backgroundColor, quincunx) {
         for (var i = 0; i < newWidth; ++i)
             newColors[i] = [];
         
-        for (i = 0; i < newWidth; i = i + squareSize) {
-            for (var j = 0; j < newHeight; j = j + squareSize) {
-                mainColor = getMainColor(colors, i + offsetX, j + offsetY, squareSize, squareSize);
-                center = new Vector2(i+hSquareSize, j+hSquareSize);
-                for (var m = 0; m < squareSize; ++m) {
-                    for (var n = 0; n < squareSize; ++n) {
+        for (i = 0; i < newWidth; i = i + capDiameter) {
+            for (var j = 0; j < newHeight; j = j + capDiameter) {
+                mainColor = getMainColor(colors, i + offsetX, j + offsetY, capDiameter, capDiameter);
+                center = new Vector2(i+capRadius, j+capRadius);
+                circle = draw.circle(capDiameter)
+                circle.move(i, j)
+                circle.fill(mainColor)
+                for (var m = 0; m < capDiameter; ++m) {
+                    for (var n = 0; n < capDiameter; ++n) {
                         point = new Vector2(i+m, j+n);
-                        if (point.isInCircle(center, hSquareSize))
+                        if (point.isInCircle(center, capRadius))
                             newColors[i + m][j + n] = mainColor;
                         else
                             newColors[i + m][j + n] = backgroundColor;
@@ -141,7 +147,7 @@ function capsPicture(colors, squareSize, backgroundColor, quincunx) {
         }
     }
 
-    return { colors: newColors, nbCaps: nbSquares };
+    return { colors: newColors, nbCaps: nbCaps };
 }
 
 function getMainColor(colors, x, y, width, height) {
